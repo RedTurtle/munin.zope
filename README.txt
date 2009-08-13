@@ -1,11 +1,16 @@
 munin.zope
 ===============
 
+History
+-------
+
+This package was originally started as `redturtle.munin`_ by RedTurtle Technology.
+From 1.1a1 we have move development to `munin.zope`_ leaving some free place 
+for other munin plugins.
+  
+  
 Introduction
 ------------
-
-Starting with 1.1a1 we have change the package name to `munin.zope`_ 
-(previously called `redturtle.munin`_).
 
 This package provides munin plugins for monitoring various aspects of a Zope
 instance.
@@ -148,9 +153,9 @@ References
 
 * `munin.zope`_ at pypi
 * `gocept.munin`_ at pypi
+* `redturtle.munin`_ at pypi
 * `munin`_ project
 * `munin exchange`_
-* `redturtle.munin`_
 
   .. _munin.zope: http://pypi.python.org/pypi/munin.zope/
   .. _gocept.munin: http://pypi.python.org/pypi/gocept.munin/
