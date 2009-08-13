@@ -1,8 +1,11 @@
-redturtle.munin
+munin.zope
 ===============
 
 Introduction
 ------------
+
+Starting with 1.1a1 we have change the package name to `munin.zope`_ 
+(previously called `redturtle.munin`_).
 
 This package provides munin plugins for monitoring various aspects of a Zope
 instance.
@@ -34,10 +37,10 @@ How to use it
     ...
     eggs =
         ...
-        redturtle.munin
+        munin.zope
     zcml =
         ...
-        redturtle.munin
+        munin.zope
 
 * To create the pluging helper script you'll also need to include the
   following, additional section and extend your `parts` definition::
@@ -49,7 +52,7 @@ How to use it
 
     [munin]
     recipe = zc.recipe.egg
-    eggs = redturtle.munin
+    eggs = munin.zope
     arguments = http_address='${instance:http-address}', user='${instance:user}'
 
   The `arguments` option is used to pass configuration values to the generated
@@ -85,13 +88,13 @@ How to use it
 
     [munin1]
     recipe = zc.recipe.egg
-    eggs = redturtle.munin
+    eggs = munin.zope
     scripts = munin=munin1
     arguments = http_address='${instance1:http-address}', user='${instance1:user}'
 
     [munin2]
     recipe = zc.recipe.egg
-    eggs = redturtle.munin
+    eggs = munin.zope
     scripts = munin=munin2
     arguments = http_address='${instance2:http-address}', user='${instance2:user}'
 
@@ -101,7 +104,7 @@ How to use it
 
 * Now you should be able to call the plugins as follow::
 
-    http://localhost:8080/@@redturtle.munin.plugins/zopethreads
+    http://localhost:8080/@@munin.zope.plugins/zopethreads
 
   Where `zopethreads` is you plugin name.  Please note that for security
   reasons the view requires the `View management screens` permission.
@@ -130,10 +133,10 @@ How to use it
   correctly set up the `arguments` option as described in step 2 above)::
 
     $ cd /opt/munin/etc/plugin-conf.d/
-    $ vi redturtle.conf
+    $ vi munin.zope.conf
     ... [company_*_site1]
     ... env.AUTH myuser:myuser
-    ... env.URL http://localhost:8080/@@redturtle.munin.plugins/%s
+    ... env.URL http://localhost:8080/@@munin.zope.plugins/%s
 
   Here `myuser:myuser` are your Zope user credentials and `localhost:8080`
   your site url.  Please check `munin`_ for more information about plugin
@@ -143,16 +146,17 @@ How to use it
 References
 ----------
 
-* `redturtle.munin`_ at pypi
+* `munin.zope`_ at pypi
 * `gocept.munin`_ at pypi
 * `munin`_ project
 * `munin exchange`_
+* `redturtle.munin`_
 
-  .. _redturtle.munin: http://pypi.python.org/pypi/redturtle.munin/
+  .. _munin.zope: http://pypi.python.org/pypi/munin.zope/
   .. _gocept.munin: http://pypi.python.org/pypi/gocept.munin/
   .. _munin exchange: http://muninexchange.projects.linpro.no/
   .. _munin: http://munin.projects.linpro.no/
-
+  .. _redturtle.munin: http://pypi.python.org/pypi/redturtle.munin/
 
 Contact
 -------

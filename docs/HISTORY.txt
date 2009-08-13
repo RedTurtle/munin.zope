@@ -1,8 +1,10 @@
 Changelog
 =========
 
-1.0a3 - Unreleased
+1.1a1 - 2009/08/13
 ------------------
+
+* Change the package name to munin.zope [amleczko]
 
 
 1.0a2 - 2009/07/27
