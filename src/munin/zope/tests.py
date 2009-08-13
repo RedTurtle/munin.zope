@@ -17,9 +17,9 @@ class TestLayer:
     def setUp(cls):
         # load zcml & install package
         fiveconfigure.debug_mode = True
-        from redturtle import munin
+        import munin.zope
         zcml.load_site()
-        zcml.load_config('configure.zcml', munin)
+        zcml.load_config('configure.zcml', munin.zope)
         fiveconfigure.debug_mode = False
         installPackage('munin.zope', quiet=True)
 
