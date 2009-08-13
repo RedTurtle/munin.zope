@@ -1,0 +1,63 @@
+Changelog
+=========
+
+1.0a3 - Unreleased
+------------------
+
+
+1.0a2 - 2009/07/27
+------------------
+
+* Fix dimension for memory usage plugin.
+  [witsch]
+
+* Add info about monitoring more than one instance, e.g. a ZEO setup.
+  [witsch]
+
+* Allow overriding the default prefix/suffix when setting up plugin links.
+  [witsch]
+
+
+1.0a1 - 2009/07/17
+------------------
+
+* Add script option to automatically setup symlinks for all available
+  plugins in the munin plugin directory.
+  [witsch]
+
+* Add plugin to track zope's memory usage (only available on Linux).
+  [witsch]
+
+* Add logging of slow plugin execution as a safety net.
+  [witsch]
+
+* Allow setting of necessary configuration values directly in buildout.
+  [witsch]
+
+* Refactor and try to simplify things.
+  [witsch]
+
+
+0.0.3 - 2009/03/30
+------------------
+
+* Add documentation.
+  [amleczko]
+
+* Refactor plugin registration.
+  [amleczko]
+
+
+0.0.2 - 2009/03/26
+------------------
+
+* Small refactoring.
+  [amleczko]
+
+
+0.0.1 - 2009/03/24
+------------------
+
+* Initial release.
+  [amleczko]
+

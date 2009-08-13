@@ -1,0 +1,13 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser">
+
+    <browser:page
+        for="*"
+        name="munin.zope.plugins"
+        class=".browser.Munin"
+        allowed_attributes="zopecache zodbactivity zopethreads zopememory"
+        permission="zope2.ViewManagementScreens"
+        />
+
+</configure>

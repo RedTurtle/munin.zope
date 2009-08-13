@@ -1,0 +1,9 @@
+2dos/potential improvements:
+* zodbcache: total objects should be an extra graph
+* zopethreads: should the thread used for the munin view count or not? :)
+* zopethreads: known helper thread (clockserver, squidtool) could be reported separately
+* gocept.munin should be extended to support munin's '.draw' & '.info' parameters,
+  see http://muninexchange.projects.linpro.no/?view&phid=339
+* plugin: average response times
+* plugin: site error count
+* plugin: conflict error count
