@@ -26,7 +26,7 @@ class Munin(BrowserView):
     def zopecache(self):
         """ zodb cache statistics """
         result = []
-        db = self.context.restrictedTraverse('/Control_Panel/Database/main')
+        db = self.context.unrestrictedTraverse('/Control_Panel/Database/main')
         result.append('total_objs:%.1f' % db.database_size())
         result.append('total_objs_memory:%.1f' % db.cache_length())
         result.append('target_number:%.1f' %
@@ -40,7 +40,7 @@ class Munin(BrowserView):
         now = time()
         start = now - 300   # munin's polls every 5 minutes (*60 seconds)
         end = now
-        db = self.context.restrictedTraverse('/Control_Panel/Database/main')
+        db = self.context.unrestrictedTraverse('/Control_Panel/Database/main')
         params = dict(chart_start=start, chart_end=end)
         chart = db.getActivityChartData(200, params)
         result.append('total_load_count:%.1f' % chart['total_load_count'])
