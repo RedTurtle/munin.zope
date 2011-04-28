@@ -3,7 +3,12 @@ from ZServer.PubCore.ZRendezvous import ZRendevous
 from logging import getLogger
 from munin.zope.memory import vmstats
 from time import time
-import threadframe
+import sys
+if sys.version_info < (2, 5):
+    import threadframe
+    thread = threadframe.dict
+else:
+    thread = sys._current_frames
 
 log = getLogger('munin.zope').info
 
@@ -52,7 +57,7 @@ class Munin(BrowserView):
     def zopethreads(self):
         """ zope thread statistics """
         result = []
-        frames = threadframe.dict()
+        frames = thread()
         total_threads = len(frames.values())
         free_threads = 0
         for frame in frames.values():

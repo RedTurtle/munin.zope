@@ -1,9 +1,14 @@
 from setuptools import setup, find_packages
 from os.path import join
+import sys
 
 version = '1.1'
 readme = open("README.txt").read()
 history = open(join('docs', 'HISTORY.txt')).read()
+
+install_requires = ['setuptools', 'gocept.munin']
+if sys.version_info < (2, 5):
+    install_requires.append('threadframe')
 
 setup(name = 'munin.zope',
       version = version,
@@ -33,11 +38,7 @@ setup(name = 'munin.zope',
       include_package_data = True,
       platforms = 'Any',
       zip_safe = False,
-      install_requires = [
-          'setuptools',
-          'gocept.munin',
-          'threadframe',
-      ],
+      install_requires = install_requires,
       entry_points = """
           [console_scripts]
           munin = munin.zope.plugins:run

@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.2 - 2011/04/28
+----------------
+* Remove threadframe dependency on python >= 2.5 [amleczko]
+
 1.1 - 2010/02/25
 ----------------
 
