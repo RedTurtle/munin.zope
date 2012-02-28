@@ -3,7 +3,7 @@ from os.path import join
 import sys
 
 version = '1.2'
-readme = open("README.txt").read()
+readme = open("README.rst").read()
 history = open(join('docs', 'HISTORY.txt')).read()
 
 install_requires = ['setuptools', 'gocept.munin']
