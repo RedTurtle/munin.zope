@@ -166,7 +166,7 @@ References
 Contact
 -------
 
-.. image:: http://www.slowfoodbologna.it/redturtle_logo.png
+.. image:: http://www.redturtle.it/redturtle_banner.png
 
 * | Andrew Mleczko <``andrew.mleczko at redturtle.net``>
   | **RedTurtle Technology**, http://www.redturtle.net/
