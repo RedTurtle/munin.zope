@@ -42,5 +42,7 @@ setup(name = 'munin.zope',
       entry_points = """
           [console_scripts]
           munin = munin.zope.plugins:run
+          [z3c.autoinclude.plugin]
+          target = plone
       """,
 )
