@@ -159,7 +159,7 @@ Security
 --------
 For security reasons the views requires the `View management screens` permission...
 
-... or you can make us of a shared secret on request, you must configure the shared key on
+... or you can use a shared secret on the request, you must configure the shared key on
 zope.conf adding a stanza like::
 
     <product-config munin.zope>
