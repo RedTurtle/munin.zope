@@ -62,7 +62,6 @@ class Munin(BrowserView):
     def zopecache(self):
         """ zodb cache statistics """
         result = []
-        import pdb; pdb.set_trace()
         db = self.context.unrestrictedTraverse('/Control_Panel/Database/main')
         result.append('total_objs:%.1f' % db.database_size())
         result.append('total_objs_memory:%.1f' % db.cache_length())
