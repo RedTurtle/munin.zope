@@ -173,6 +173,10 @@ On your buildout `instance` slot::
             secret yoursecrethere
         </product-config>
 
+So you can make a request without authentication, using the secret, like::
+
+    http://localhost:8080/@@munin.zope.plugins/zopethreads?yoursecrethere
+
 References
 ----------
 
