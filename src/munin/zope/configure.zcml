@@ -7,7 +7,7 @@
         name="munin.zope.plugins"
         class=".browser.Munin"
         allowed_attributes="zopecache zodbactivity zopethreads zopememory"
-        permission="zope2.ViewManagementScreens"
+        permission="zope2.View"
         />
 
 </configure>
