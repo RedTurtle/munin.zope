@@ -20,4 +20,4 @@ def vmstats(pid=getpid()):
 
 
 def vmkeys():
-    return [ key for key, value in vmstats() ]
+    return [key for key, value in vmstats()]

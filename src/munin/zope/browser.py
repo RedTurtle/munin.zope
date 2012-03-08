@@ -1,3 +1,5 @@
+import sys
+
 from Products.Five.browser import BrowserView
 from ZServer.PubCore.ZRendezvous import ZRendevous
 from App.config import getConfiguration
@@ -6,8 +8,6 @@ from zExceptions import Unauthorized
 from logging import getLogger
 from munin.zope.memory import vmstats
 from time import time
-import sys
-
 if sys.version_info < (2, 5):
     import threadframe
     thread = threadframe.dict
@@ -15,8 +15,8 @@ else:
     thread = sys._current_frames
 
 PERMISSION = "View managment screens"
-
 log = getLogger('munin.zope').info
+
 
 def getSecret():
     product_config = getattr(getConfiguration(), 'product_config', None)
@@ -54,6 +54,7 @@ def perm(fn):
     decorator.__doc__ = fn.__doc__
     decorator.__name__ = fn.__name__
     return decorator
+
 
 class Munin(BrowserView):
 

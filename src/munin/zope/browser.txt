@@ -27,7 +27,7 @@ At first we shouldn't have the necessary rights to access the views:
   Unauthorized: ...
 
 Becoming a manager should help:
- 
+
   >>> self.setRoles(['Manager'])
 
   >>> browser.open('http://nohost/@@munin.zope.plugins/zopethreads')
