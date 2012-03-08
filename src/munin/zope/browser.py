@@ -1,16 +1,30 @@
 from Products.Five.browser import BrowserView
 from ZServer.PubCore.ZRendezvous import ZRendevous
+from App.config import getConfiguration
+from AccessControl import getSecurityManager
+from zExceptions import Unauthorized
 from logging import getLogger
 from munin.zope.memory import vmstats
 from time import time
 import sys
+
 if sys.version_info < (2, 5):
     import threadframe
     thread = threadframe.dict
 else:
     thread = sys._current_frames
 
+PERMISSION = "View managment screens"
+
 log = getLogger('munin.zope').info
+
+def getSecret():
+    product_config = getattr(getConfiguration(), 'product_config', None)
+    config = product_config and product_config.get('munin.zope')
+    return config and config.get('secret')
+
+secret = getSecret()
+
 
 def timer(fn):
     def decorator(*args, **kw):
@@ -25,8 +39,25 @@ def timer(fn):
     return decorator
 
 
+def perm(fn):
+    def decorator(*args, **kw):
+        if secret and args[0].request.get('QUERY_STRING') == secret:
+            pass
+        elif getSecurityManager().checkPermission(PERMISSION, args[0].context):
+            pass
+        else:
+            msg = "Insufficient priviledge to perform this action. It requires the permission: " + PERMISSION
+            raise Unauthorized(msg, needed={'permission': PERMISSION})
+        # zope2.ViewManagementScreens
+        value = fn(*args, **kw)
+        return value
+    decorator.__doc__ = fn.__doc__
+    decorator.__name__ = fn.__name__
+    return decorator
+
 class Munin(BrowserView):
 
+    @perm
     @timer
     def zopecache(self):
         """ zodb cache statistics """
@@ -38,6 +69,7 @@ class Munin(BrowserView):
             (len(db.cache_detail_length()) * db.cache_size()))
         return '\n'.join(result)
 
+    @perm
     @timer
     def zodbactivity(self):
         """ zodb activity statistics """
@@ -53,6 +85,7 @@ class Munin(BrowserView):
         result.append('total_connections:%.1f' % chart['total_connections'])
         return '\n'.join(result)
 
+    @perm
     @timer
     def zopethreads(self):
         """ zope thread statistics """
@@ -69,6 +102,7 @@ class Munin(BrowserView):
         result.append('free_threads:%.1f' % free_threads)
         return '\n'.join(result)
 
+    @perm
     @timer
     def zopememory(self):
         """ zope memory usage statistics """

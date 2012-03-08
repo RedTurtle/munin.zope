@@ -47,6 +47,15 @@ How to use it
         ...
         munin.zope
 
+* If you use z3c.autoinclude and plone (default from Plone 3.3.x),
+  you need only eggs stuff::
+
+    [instance]
+    ...
+    eggs =
+        ...
+        munin.zope
+
 * To create the pluging helper script you'll also need to include the
   following, additional section and extend your `parts` definition::
 
@@ -111,8 +120,7 @@ How to use it
 
     http://localhost:8080/@@munin.zope.plugins/zopethreads
 
-  Where `zopethreads` is you plugin name.  Please note that for security
-  reasons the view requires the `View management screens` permission.
+  Where `zopethreads` is you plugin name.
 
 * Next you need to make symlinks from the helper script inside your
   buildout's `bin/` to the munin plugin directory.  The helper script itself
@@ -147,6 +155,27 @@ How to use it
   your site url.  Please check `munin`_ for more information about plugin
   configuration.
 
+Security
+--------
+For security reasons the views requires the `View management screens` permission...
+
+... or you can use a shared secret on the request, you must configure the shared key on
+zope.conf adding a stanza like::
+
+    <product-config munin.zope>
+        secret yoursecrethere
+    </product-config>
+
+On your buildout `instance` slot::
+
+    zope-conf-additional +=
+        <product-config munin.zope>
+            secret yoursecrethere
+        </product-config>
+
+So you can make a request without authentication, using the secret, like::
+
+    http://localhost:8080/@@munin.zope.plugins/zopethreads?yoursecrethere
 
 References
 ----------
