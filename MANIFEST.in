@@ -1,0 +1,3 @@
+recursive-include src *.zcml
+include README.rst
+recursive-include docs *.txt *.rst
