@@ -71,7 +71,7 @@ class Munin(BrowserView):
         elif filestorage:
             if not filestorage in db.getDatabaseNames():
                 raise NotFound
-            yield (db[filestorage], '_%s' % filestorage)
+            yield (db[filestorage], '')
         else:
             yield (db['main'], '')
 
