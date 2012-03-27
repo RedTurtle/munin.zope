@@ -203,6 +203,6 @@ Contact
 * | Andreas Zeidler <``az at zitc.de``>
   | **ZITC**, http://zitc.de/
 
-* | Mauro Amico <``mauro at biode.com``>
+* | Mauro Amico <``mauro at biodec.com``>
   | **Biodec**, http://www.biodec.com/
 
