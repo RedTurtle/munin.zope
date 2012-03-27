@@ -60,29 +60,29 @@ def perm(fn):
 
 class Munin(BrowserView):
 
-    def _getdb(self, filestorage):
+    def _getdbs(self):
+        filestorage = self.request.get('filestorage')
         db = self.context.unrestrictedTraverse('/Control_Panel/Database')
-        if not filestorage in db.getDatabaseNames():
-            raise NotFound
-        return db[filestorage]
+        if filestorage == '*':
+            results = []
+            db = self.context.unrestrictedTraverse('/Control_Panel/Database')
+            for filestorage in db.getDatabaseNames():
+                yield (db[filestorage], '_%s' % filestorage)
+        elif filestorage:
+            if not filestorage in db.getDatabaseNames():
+                raise NotFound
+            yield (db[filestorage], '_%s' % filestorage)
+        else:
+            yield (db['main'], '')
 
     @perm
     @timer
     def zopecache(self):
         """ zodb cache statistics """
-        filestorage = self.request.get('filestorage')
-        if filestorage == '*':
-            results = []
-            db = self.context.unrestrictedTraverse('/Control_Panel/Database')
-            for filestorage in db.getDatabaseNames():
-                results.append(self._zopecache(self._getdb(filestorage),
-                                                   '_%s' % filestorage))
-            result = '\n'.join(results)
-        elif filestorage:
-            result = self._zopecache(self._getdb(filestorage), '_%s' % filestorage)
-        else:
-            result = self._zopecache(self._getdb('main'), '')
-        return result
+        results = []
+        for (db, suffix) in self._getdbs():
+            results.append(self._zopecache(db, suffix))
+        return '\n'.join(results)
 
     def _zopecache(self, db, suffix):
         result = []
@@ -96,26 +96,16 @@ class Munin(BrowserView):
     @timer
     def zodbactivity(self):
         """ zodb activity statistics """
-        filestorage = self.request.get('filestorage')
-        if filestorage == '*':
-            results = []
-            db = self.context.unrestrictedTraverse('/Control_Panel/Database')
-            for filestorage in db.getDatabaseNames():
-                results.append(self._zodbactivity(self._getdb(filestorage),
-                                                      '_%s' % filestorage))
-                result = '\n'.join(results)
-        elif filestorage:
-            result = self._zodbactivity(self._getdb(filestorage), '_%s' % filestorage)
-        else:
-            result = self._zodbactivity(self._getdb('main'), '')
-        return result
+        results = []
+        for (db, suffix) in self._getdbs():
+            results.append(self._zodbactivity(db, suffix))
+        return '\n'.join(results)
 
     def _zodbactivity(self, db, suffix):
         result = []
         now = time()
         start = now - 300   # munin's polls every 5 minutes (*60 seconds)
         end = now
-        db = self.context.unrestrictedTraverse('/Control_Panel/Database/main')
         params = dict(chart_start=start, chart_end=end)
         chart = db.getActivityChartData(200, params)
         result.append('total_load_count%s:%.1f' % (suffix, chart['total_load_count']))
