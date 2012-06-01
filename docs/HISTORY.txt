@@ -4,8 +4,7 @@ Changelog
 1.4 (unreleased)
 ----------------
 
-- Nothing changed yet.
-
+- Manage multiple filestorage (zodbactvity, zopecache plugins) [mauro]
 
 1.3.1 (2012-03-15)
 ------------------

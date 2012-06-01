@@ -175,7 +175,7 @@ On your buildout `instance` slot::
 
 So you can make a request without authentication, using the secret, like::
 
-    http://localhost:8080/@@munin.zope.plugins/zopethreads?yoursecrethere
+    http://localhost:8080/@@munin.zope.plugins/zopethreads?secret=yoursecrethere
 
 References
 ----------
@@ -202,3 +202,7 @@ Contact
 
 * | Andreas Zeidler <``az at zitc.de``>
   | **ZITC**, http://zitc.de/
+
+* | Mauro Amico <``mauro at biodec.com``>
+  | **Biodec**, http://www.biodec.com/
+

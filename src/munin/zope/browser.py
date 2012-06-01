@@ -4,7 +4,7 @@ from Products.Five.browser import BrowserView
 from ZServer.PubCore.ZRendezvous import ZRendevous
 from App.config import getConfiguration
 from AccessControl import getSecurityManager
-from zExceptions import Unauthorized
+from zExceptions import Unauthorized, NotFound
 from logging import getLogger
 from munin.zope.memory import vmstats
 from time import time
@@ -41,7 +41,9 @@ def timer(fn):
 
 def perm(fn):
     def decorator(*args, **kw):
-        if secret and args[0].request.get('QUERY_STRING') == secret:
+        if secret and \
+              (args[0].request.get('QUERY_STRING') == secret or \
+                 args[0].request.get('secret') == secret):
             pass
         elif getSecurityManager().checkPermission(PERMISSION, args[0].context):
             pass
@@ -58,32 +60,57 @@ def perm(fn):
 
 class Munin(BrowserView):
 
+    def _getdbs(self):
+        filestorage = self.request.get('filestorage')
+        db = self.context.unrestrictedTraverse('/Control_Panel/Database')
+        if filestorage == '*':
+            results = []
+            db = self.context.unrestrictedTraverse('/Control_Panel/Database')
+            for filestorage in db.getDatabaseNames():
+                yield (db[filestorage], '_%s' % filestorage)
+        elif filestorage:
+            if not filestorage in db.getDatabaseNames():
+                raise NotFound
+            yield (db[filestorage], '')
+        else:
+            yield (db['main'], '')
+
     @perm
     @timer
     def zopecache(self):
         """ zodb cache statistics """
+        results = []
+        for (db, suffix) in self._getdbs():
+            results.append(self._zopecache(db, suffix))
+        return '\n'.join(results)
+
+    def _zopecache(self, db, suffix):
         result = []
-        db = self.context.unrestrictedTraverse('/Control_Panel/Database/main')
-        result.append('total_objs:%.1f' % db.database_size())
-        result.append('total_objs_memory:%.1f' % db.cache_length())
-        result.append('target_number:%.1f' %
-            (len(db.cache_detail_length()) * db.cache_size()))
+        result.append('total_objs%s:%.1f' % (suffix, db.database_size()))
+        result.append('total_objs_memory%s:%.1f' % (suffix, db.cache_length()))
+        result.append('target_number%s:%.1f' %
+            (suffix, (len(db.cache_detail_length()) * db.cache_size())))
         return '\n'.join(result)
 
     @perm
     @timer
     def zodbactivity(self):
         """ zodb activity statistics """
+        results = []
+        for (db, suffix) in self._getdbs():
+            results.append(self._zodbactivity(db, suffix))
+        return '\n'.join(results)
+
+    def _zodbactivity(self, db, suffix):
         result = []
         now = time()
         start = now - 300   # munin's polls every 5 minutes (*60 seconds)
         end = now
-        db = self.context.unrestrictedTraverse('/Control_Panel/Database/main')
         params = dict(chart_start=start, chart_end=end)
         chart = db.getActivityChartData(200, params)
-        result.append('total_load_count:%.1f' % chart['total_load_count'])
-        result.append('total_store_count:%.1f' % chart['total_store_count'])
-        result.append('total_connections:%.1f' % chart['total_connections'])
+        result.append('total_load_count%s:%.1f' % (suffix, chart['total_load_count']))
+        result.append('total_store_count%s:%.1f' % (suffix, chart['total_store_count']))
+        result.append('total_connections%s:%.1f' % (suffix, chart['total_connections']))
         return '\n'.join(result)
 
     @perm
