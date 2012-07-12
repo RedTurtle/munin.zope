@@ -60,13 +60,16 @@ def install(script, cmd, path, prefix=None, suffix=None):
                 print 'skipped existing %s' % target
 
 
-def run(ip_address='localhost', http_address=8080, port_base=0, user=None):
+def run(ip_address='localhost', http_address=8080, port_base=0, user=None,
+        secret = None):
     if 3 <= len(argv) <= 5 and argv[1] == 'install':
         return install(*argv)
+    port = int(http_address) + int(port_base)
+    host = '%s:%d' % (ip_address, port)
     if not 'URL' in environ:
-        port = int(http_address) + int(port_base)
-        host = '%s:%d' % (ip_address, port)
         environ['URL'] = 'http://%s/@@munin.zope.plugins/%%s' % host
     if not 'AUTH' in environ and user is not None:
         environ['AUTH'] = user
+    if secret is not None:
+        environ['URL'] = 'http://%s/@@munin.zope.plugins/%%s?secret=%s' % (host, secret)
     main()
