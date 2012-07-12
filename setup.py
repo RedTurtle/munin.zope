@@ -39,6 +39,9 @@ setup(name = 'munin.zope',
       platforms = 'Any',
       zip_safe = False,
       install_requires = install_requires,
+      extras_require={
+              'test': ['plone.app.testing'],
+              },
       entry_points = """
           [console_scripts]
           munin = munin.zope.plugins:run
