@@ -4,6 +4,8 @@ Changelog
 1.4 (unreleased)
 ----------------
 
+- Allow passing the secret in the bin/munin script as well [fredvd]
+
 - Added testrunner for Plone 4.2 [fredvd]
 
 - updated bootstrap.py for distribute compat. [fredvd]

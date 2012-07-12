@@ -177,6 +177,15 @@ So you can make a request without authentication, using the secret, like::
 
     http://localhost:8080/@@munin.zope.plugins/zopethreads?secret=yoursecrethere
 
+You can also pass in the secret in the munin helper script::
+
+    [munin3]
+    recipe = zc.recipe.egg
+    eggs = munin.zope
+    scripts = munin=munin3
+    arguments = http_address='${instance2:http-address}', secret='mylittlesecret'
+
+
 References
 ----------
 
