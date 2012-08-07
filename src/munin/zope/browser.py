@@ -119,10 +119,12 @@ class Munin(BrowserView):
         """ zope thread statistics """
         result = []
         frames = thread()
-        total_threads = len(frames.values())
         free_threads = 0
+        total_threads = 0
         for frame in frames.values():
             _self = frame.f_locals.get('self')
+            if _self:
+                total_threads += 1
             if hasattr(_self, '__module__') and \
                     _self.__module__ == ZRendevous.__module__:
                 free_threads += 1
