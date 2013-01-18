@@ -10,15 +10,10 @@ The base `munin.zope` view is accessible for everyone:
   >>> print browser.contents
    <Products.Five.metaclass.Munin object at ...>
 
-But with a regular user we shouldn't have the necessary rights to access the
-actual "munin" views:
+But a regular user shouldn't have the necessary rights to access the actual
+"munin" views:
 
   >>> browser.open('http://nohost/@@munin.zope.plugins/zopecache')
-  Traceback (most recent call last):
-  ...
-  Unauthorized: ...
-
-  >>> browser.open('http://nohost/@@munin.zope.plugins/zopethreads')
   Traceback (most recent call last):
   ...
   Unauthorized: ...
@@ -38,11 +33,6 @@ Becoming a manager should help:
   >>> browser = getBrowser(login='manager', password='s3kr3t')
   >>> browser.handleErrors = False
 
-  >>> browser.open('http://nohost/@@munin.zope.plugins/zopethreads')
-  >>> print browser.contents
-  total_threads:1.0
-  free_threads:0.0
-
 The memory plugin only works on Linux at the moment, so testing of it's
 output is skipped for now.  However, calling the view itself should work:
 
@@ -55,20 +45,10 @@ You can also use a shared secret:
   >>> browser = getBrowser(login='member', password='s3kr3t')
   >>> browser.handleErrors = False
 
-  >>> browser.open('http://nohost/@@munin.zope.plugins/zopethreads')
+  >>> browser.open('http://nohost/@@munin.zope.plugins/zopememory?wrongsecret')
   Traceback (most recent call last):
   ...
   Unauthorized: ...
-
-  >>> browser.open('http://nohost/@@munin.zope.plugins/zopethreads?wrongsecret')
-  Traceback (most recent call last):
-  ...
-  Unauthorized: ...
-
-  >>> browser.open('http://nohost/@@munin.zope.plugins/zopethreads?muninsecret')
-  >>> print browser.contents
-  total_threads:1.0
-  free_threads:0.0
 
   >>> browser.open('http://nohost/@@munin.zope.plugins/zopememory?muninsecret')
   >>> print browser.contents

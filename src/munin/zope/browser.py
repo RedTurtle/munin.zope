@@ -1,13 +1,15 @@
 import sys
 
 from Products.Five.browser import BrowserView
-from ZServer.PubCore.ZRendezvous import ZRendevous
+import ZServer.PubCore
 from App.config import getConfiguration
 from AccessControl import getSecurityManager
 from zExceptions import Unauthorized, NotFound
 from logging import getLogger
 from munin.zope.memory import vmstats
 from time import time
+from urlparse import parse_qs
+from Products.ZServerViews.base import ViewError, TextView
 if sys.version_info < (2, 5):
     import threadframe
     thread = threadframe.dict
@@ -47,7 +49,7 @@ def checkSecret(environment):
     check_secret = secret and (
         query == secret or
         environment.get('secret') == secret or
-        parse_qs(query).get('secret') == secret
+        parse_qs(query).get('secret') == [secret]
     )
     return check_secret
 
@@ -67,6 +69,40 @@ def perm(fn):
     decorator.__name__ = fn.__name__
     return decorator
 
+
+@TextView
+@timer
+def zopethreads(environment):
+    """ zope thread statistics """
+    if not checkSecret(environment):
+        # XXX: Move check into a decorator?
+        raise ViewError('404 Not Found')
+    result = []
+    frames = thread()
+    total_threads = len(frames)
+    if ZServer.PubCore._handle is not None:
+        handler_lists = ZServer.PubCore._handle.im_self._lists
+    else:
+        handler_lists = ((), (), ())
+    # Check the ZRendevous __init__ for the definitions below
+    busy_count, request_queue_count, free_count = [
+        len(l) for l in handler_lists
+    ]
+    result.append(u'total_threads:%.1f' % total_threads)
+    result.append(u'free_threads:%.1f' % free_count)
+    # NOTE: We could do more with the values above, e.g:
+    #result.append('worker_threads:%.1f' % (free_count + busy_count))
+    #result.append('request_queue_length:%.1f' % request_queue_count)
+    #
+    # One cool property is that if request_queue_count > 0, then
+    # free_count = 0, so we could usefully plot them in the same graph.
+    #
+    # Another property is that free_threads will never reach total_threads
+    # because there's at least the ZServer thread. But it could be useful
+    # to see if total_threads starts to increase. It means there's a
+    # thread leak somewhere, e.g. in an add-on library. But perhaps this
+    # would be better off in a different graph
+    return u'\n'.join(result)
 
 class Munin(BrowserView):
 
@@ -120,25 +156,6 @@ class Munin(BrowserView):
         result.append('total_load_count%s:%.1f' % (suffix, chart['total_load_count']))
         result.append('total_store_count%s:%.1f' % (suffix, chart['total_store_count']))
         result.append('total_connections%s:%.1f' % (suffix, chart['total_connections']))
-        return '\n'.join(result)
-
-    @perm
-    @timer
-    def zopethreads(self):
-        """ zope thread statistics """
-        result = []
-        frames = thread()
-        free_threads = 0
-        total_threads = 0
-        for frame in frames.values():
-            _self = frame.f_locals.get('self')
-            if _self:
-                total_threads += 1
-            if hasattr(_self, '__module__') and \
-                    _self.__module__ == ZRendevous.__module__:
-                free_threads += 1
-        result.append('total_threads:%.1f' % total_threads)
-        result.append('free_threads:%.1f' % free_threads)
         return '\n'.join(result)
 
     @perm
