@@ -1,10 +1,12 @@
 Changelog
 =========
 
-1.3.4 (unreleased)
+2.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fix `zopethreads` count, and make it not skew its own count of free threads.
+  Bumping version, as `zopethreads` is no longer accessible through
+  authenticated access, only through "secret" configuration. [leorochael]
 
 
 1.3.3 (2012-12-17)
