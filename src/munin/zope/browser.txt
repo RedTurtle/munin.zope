@@ -1,10 +1,17 @@
 This file provides a few simple functional tests making sure the views used
 for the various munin plugins work as expected.
 
-At first we shouldn't have the necessary rights to access the views:
-
-  >>> browser = self.getBrowser()
+  >>> browser = getBrowser(login='member', password='s3kr3t')
   >>> browser.handleErrors = False
+
+The base `munin.zope` view is accessible for everyone:
+
+  >>> browser.open('http://nohost/@@munin.zope.plugins')
+  >>> print browser.contents
+   <Products.Five.metaclass.Munin object at ...>
+
+But with a regular user we shouldn't have the necessary rights to access the
+actual "munin" views:
 
   >>> browser.open('http://nohost/@@munin.zope.plugins/zopecache')
   Traceback (most recent call last):
@@ -28,7 +35,8 @@ At first we shouldn't have the necessary rights to access the views:
 
 Becoming a manager should help:
 
-  >>> self.setRoles(['Manager'])
+  >>> browser = getBrowser(login='manager', password='s3kr3t')
+  >>> browser.handleErrors = False
 
   >>> browser.open('http://nohost/@@munin.zope.plugins/zopethreads')
   >>> print browser.contents
@@ -44,7 +52,8 @@ output is skipped for now.  However, calling the view itself should work:
 
 You can also use a shared secret:
 
-  >>> self.setRoles([])
+  >>> browser = getBrowser(login='member', password='s3kr3t')
+  >>> browser.handleErrors = False
 
   >>> browser.open('http://nohost/@@munin.zope.plugins/zopethreads')
   Traceback (most recent call last):

@@ -1,65 +1,72 @@
 from unittest import TestSuite
-from zope.testing import doctest
-from AccessControl.SecurityManagement import newSecurityManager
+import doctest
 from App.config import getConfiguration
-from Testing.ZopeTestCase import installPackage, utils, layer
-from Testing.ZopeTestCase import FunctionalTestCase, FunctionalDocFileSuite
-from Products.Five import zcml, fiveconfigure
-from Products.Five.testbrowser import Browser
+from Products.Five import fiveconfigure
+from plone.testing import layered
+from plone.testing import z2
+from plone.app.testing.layers import PloneFixture
 
 optionflags = (doctest.REPORT_ONLY_FIRST_FAILURE |
                doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE)
 
+class MuninZopeFixture(PloneFixture):
+    """ munin.zope text fixture """
 
-class TestLayer(layer.ZopeLiteLayer):
-    """ layer for integration tests """
+    # XXX: The PloneFixture with an empty set of products and an overriden
+    # setUpDefaultContent is the closest to an empty Zope2 layer we got
+    # but it forces requiring the plone.app.testing layer. If we copy the
+    # relevant portions over, we can ditch plone.app.testing and use only
+    # plone.testing a a test requirement
+    products = ()
 
-    @classmethod
-    def setUp(cls):
+    def setUpZCML(self):
+        super(MuninZopeFixture, self).setUpZCML()
+        from zope.configuration import xmlconfig
+        import munin.zope
         cfg = getConfiguration()
         cfg.product_config = {'munin.zope': {'secret': 'muninsecret'}}
         # load zcml & install package
+        context = self['configurationContext']
         fiveconfigure.debug_mode = True
-        import munin.zope
-        zcml.load_site()
-        zcml.load_config('configure.zcml', munin.zope)
+        xmlconfig.file('configure.zcml', munin.zope, context=context)
         fiveconfigure.debug_mode = False
-        # installPackage('munin.zope', quiet=True)
 
-    @classmethod
-    def tearDown(cls):
-        pass
+    def setUpDefaultContent(self, app):
+        uf = app.acl_users
+        uf._doAddUser('member', 's3kr3t', ['Member'], [])
+        uf._doAddUser('manager', 's3kr3t', ['Manager'], [])
 
+MUNIN_ZOPE_FIXTURE = MuninZopeFixture()
 
-class TestCase(FunctionalTestCase):
-    """ base class for functional tests;  please note that this test case
-        creates another user on the application root, which is why it needs
-        a special version of `setRoles` """
+MUNIN_ZOPE_INTEGRATION_TESTING = z2.IntegrationTesting(bases=(MUNIN_ZOPE_FIXTURE,), name='MuninZope:Integration')
 
-    layer = TestLayer
+MUNIN_ZOPE_ZSERVER = z2.FunctionalTesting(bases=(MUNIN_ZOPE_FIXTURE, z2.ZSERVER_FIXTURE), name='MuninZope:ZServer')
 
-    def afterSetUp(self):
-        uf = self.app.acl_users
-        uf._doAddUser('manager', 's3kr3t', ['Member'], [])
-        user = uf.getUserById('manager').__of__(uf)
-        newSecurityManager(None, user)
+def muninSetUp(doctest):
 
-    def setRoles(self, roles):
-        uf = self.app.acl_users
-        uf.userFolderEditUser('manager', None, utils.makelist(roles), [])
-
-    def getBrowser(self, loggedIn=True):
+    app = doctest.globs['layer']['app']
+    def getBrowser(login='', password=''):
         """ instantiate and return a testbrowser for convenience """
-        browser = Browser()
-        if loggedIn:
+        browser = z2.Browser(app)
+        if login:
             browser.addHeader('Authorization',
-                'Basic %s:%s' % ('manager', 's3kr3t'))
+                'Basic %s:%s' % (login, password))
         return browser
 
+    doctest.globs.update(getBrowser=getBrowser)
+
+def MuninZopeDocFileSuite(*args, **kw):
+    doctest_layer = kw.pop('layer', MUNIN_ZOPE_INTEGRATION_TESTING)
+    default_kw = dict(
+        optionflags=optionflags,
+        package='munin.zope',
+    )
+    default_kw.update(kw)
+    kw.setdefault('optionflags', optionflags)
+    return layered(doctest.DocFileSuite(*args, **kw), layer=doctest_layer)
 
 def test_suite():
     return TestSuite([
-        FunctionalDocFileSuite(
-           'browser.txt', package='munin.zope',
-           test_class=TestCase, optionflags=optionflags),
+        MuninZopeDocFileSuite('browser.txt', setUp=muninSetUp),
     ])
+
