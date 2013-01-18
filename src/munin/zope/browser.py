@@ -24,8 +24,7 @@ def getSecret():
     config = product_config and product_config.get('munin.zope')
     return config and config.get('secret')
 
-secret = getSecret()
-
+secret = _MARKER = object()
 
 def timer(fn):
     def decorator(*args, **kw):
@@ -40,16 +39,26 @@ def timer(fn):
     return decorator
 
 
+def checkSecret(environment):
+    global secret
+    if secret is _MARKER:
+        secret = getSecret()
+    query = environment.get('QUERY_STRING', '')
+    check_secret = secret and (
+        query == secret or
+        environment.get('secret') == secret or
+        parse_qs(query).get('secret') == secret
+    )
+    return check_secret
+
 def perm(fn):
     def decorator(*args, **kw):
-        if secret and \
-              (args[0].request.get('QUERY_STRING') == secret or \
-                 args[0].request.get('secret') == secret):
+        if checkSecret(args[0].request):
             pass
         elif getSecurityManager().checkPermission(PERMISSION, args[0].context):
             pass
         else:
-            msg = "Insufficient priviledge to perform this action. It requires the permission: " + PERMISSION
+            msg = "Insufficient privilege to perform this action. It requires the permission: " + PERMISSION
             raise Unauthorized(msg, needed={'permission': PERMISSION})
         # zope2.ViewManagementScreens
         value = fn(*args, **kw)
