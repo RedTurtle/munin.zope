@@ -74,7 +74,6 @@ class Munin(BrowserView):
         filestorage = self.request.get('filestorage')
         db = self.context.unrestrictedTraverse('/Control_Panel/Database')
         if filestorage == '*':
-            results = []
             db = self.context.unrestrictedTraverse('/Control_Panel/Database')
             for filestorage in db.getDatabaseNames():
                 yield (db[filestorage], '_%s' % filestorage)
