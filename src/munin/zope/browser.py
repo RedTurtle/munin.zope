@@ -14,7 +14,7 @@ if sys.version_info < (2, 5):
 else:
     thread = sys._current_frames
 
-PERMISSION = "View managment screens"
+PERMISSION = "View management screens"
 log = getLogger('munin.zope').info
 
 
