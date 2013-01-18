@@ -15,7 +15,8 @@ else:
     thread = sys._current_frames
 
 PERMISSION = "View management screens"
-log = getLogger('munin.zope').info
+log = getLogger('munin.zope')
+info = log.info
 
 
 def getSecret():
@@ -32,7 +33,7 @@ def timer(fn):
         value = fn(*args, **kw)
         elapsed = time() - start
         if elapsed > 0.1:   # only log when execution took more than 100ms
-            log('calling %s took %.3fs', fn.__name__, elapsed)
+            info('calling %s took %.3fs', fn.__name__, elapsed)
         return value
     decorator.__doc__ = fn.__doc__
     decorator.__name__ = fn.__name__
