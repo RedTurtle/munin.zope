@@ -6,7 +6,7 @@ version = '2.0.dev0'
 readme = open("README.rst").read()
 history = open(join('docs', 'HISTORY.txt')).read()
 
-install_requires = ['setuptools', 'gocept.munin', 'Products.ZServerViews']
+install_requires = ['setuptools', 'gocept.munin', 'Products.ZServerViews>=0.2']
 if sys.version_info < (2, 5):
     install_requires.append('threadframe')
 

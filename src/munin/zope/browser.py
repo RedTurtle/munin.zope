@@ -79,7 +79,7 @@ def zopethreads(environment):
     """ zope thread statistics """
     if not checkSecret(environment):
         # XXX: Move check into a decorator?
-        raise ViewError('404 Not Found')
+        raise ViewError('404 Not Found', u'Not Found!')
     result = []
     frames = thread()
     total_threads = len(frames)
