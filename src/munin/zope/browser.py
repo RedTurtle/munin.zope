@@ -8,7 +8,10 @@ from zExceptions import Unauthorized, NotFound
 from logging import getLogger
 from munin.zope.memory import vmstats
 from time import time
-from urlparse import parse_qs
+try:
+    from urlparse import parse_qs
+except ImportError:
+    from cgi import parse_qs
 from Products.ZServerViews.base import ViewError, TextView
 if sys.version_info < (2, 5):
     import threadframe
