@@ -1,8 +1,8 @@
 Changelog
 =========
 
-2.0 (unreleased)
-------------------
+2.0 (2013-02-05)
+----------------
 
 - Fix `zopethreads` count, and make it not skew its own count of free threads.
   Bumping version, as `zopethreads` is no longer accessible through
