@@ -185,7 +185,7 @@ You can also pass in the secret in the munin helper script::
     scripts = munin=munin3
     arguments = http_address='${instance2:http-address}', secret='mylittlesecret'
 
-Please note that, for `zopethreads`, only access by secret is allowed.
+Please note that, for `zopethreads`, you need to use the `secret` approach.
 
 References
 ----------
@@ -216,3 +216,5 @@ Contact
 * | Mauro Amico <``mauro at biodec.com``>
   | **Biodec**, http://www.biodec.com/
 
+* | Leonardo Rochael Almeida <``leorochael@gmail.com``>
+  | **Simples Consultoria**, http://www.simplesconsultoria.com.br/
