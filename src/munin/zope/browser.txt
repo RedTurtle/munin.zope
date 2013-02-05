@@ -1,17 +1,19 @@
 This file provides a few simple functional tests making sure the views used
 for the various munin plugins work as expected.
 
-At first we shouldn't have the necessary rights to access the views:
-
-  >>> browser = self.getBrowser()
+  >>> browser = getBrowser(login='member', password='s3kr3t')
   >>> browser.handleErrors = False
 
-  >>> browser.open('http://nohost/@@munin.zope.plugins/zopecache')
-  Traceback (most recent call last):
-  ...
-  Unauthorized: ...
+The base `munin.zope` view is accessible for everyone:
 
-  >>> browser.open('http://nohost/@@munin.zope.plugins/zopethreads')
+  >>> browser.open('http://nohost/@@munin.zope.plugins')
+  >>> print browser.contents
+   <Products.Five.metaclass.Munin object at ...>
+
+But a regular user shouldn't have the necessary rights to access the actual
+"munin" views:
+
+  >>> browser.open('http://nohost/@@munin.zope.plugins/zopecache')
   Traceback (most recent call last):
   ...
   Unauthorized: ...
@@ -28,12 +30,8 @@ At first we shouldn't have the necessary rights to access the views:
 
 Becoming a manager should help:
 
-  >>> self.setRoles(['Manager'])
-
-  >>> browser.open('http://nohost/@@munin.zope.plugins/zopethreads')
-  >>> print browser.contents
-  total_threads:1.0
-  free_threads:0.0
+  >>> browser = getBrowser(login='manager', password='s3kr3t')
+  >>> browser.handleErrors = False
 
 The memory plugin only works on Linux at the moment, so testing of it's
 output is skipped for now.  However, calling the view itself should work:
@@ -44,22 +42,13 @@ output is skipped for now.  However, calling the view itself should work:
 
 You can also use a shared secret:
 
-  >>> self.setRoles([])
+  >>> browser = getBrowser(login='member', password='s3kr3t')
+  >>> browser.handleErrors = False
 
-  >>> browser.open('http://nohost/@@munin.zope.plugins/zopethreads')
+  >>> browser.open('http://nohost/@@munin.zope.plugins/zopememory?wrongsecret')
   Traceback (most recent call last):
   ...
   Unauthorized: ...
-
-  >>> browser.open('http://nohost/@@munin.zope.plugins/zopethreads?wrongsecret')
-  Traceback (most recent call last):
-  ...
-  Unauthorized: ...
-
-  >>> browser.open('http://nohost/@@munin.zope.plugins/zopethreads?muninsecret')
-  >>> print browser.contents
-  total_threads:1.0
-  free_threads:0.0
 
   >>> browser.open('http://nohost/@@munin.zope.plugins/zopememory?muninsecret')
   >>> print browser.contents

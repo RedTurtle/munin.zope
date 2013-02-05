@@ -10,7 +10,9 @@ downloads
 eggs
 fake-eggs
 parts
+var
 dist
+local.cfg
 .installed.cfg
 .mr.developer.cfg
 .hg
@@ -19,3 +21,5 @@ dist
 *.pyc
 *.pyo
 *.tmp*
+/.project
+/.pydevproject

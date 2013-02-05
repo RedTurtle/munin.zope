@@ -1,0 +1,161 @@
+
+holder_condition = Condition()
+
+The `zopethreads` view must accurately represent the threads in the Zope,
+server, including information on which worker threads are available and which
+ones are busy, as well as reporting the total number of threads in the process.
+
+We have started a Zope Server with 2 worker threads
+
+  >>> import ZServer.PubCore
+  >>> ZServer.PubCore._n
+  2
+
+  >>> import base64
+  >>> from urllib2 import urlopen, Request
+  >>> from urlparse import urljoin
+  >>> timeout = 0.2
+
+When ZServer is not handling anything, the `zopethreads` view should report
+that all worker threads are free:
+
+  >>> base_url = layer['request']['SERVER_URL']
+  >>> zopethreads_path = '@@munin.zope.plugins/zopethreads'
+  >>> zopethreads_qs = '?muninsecret'
+  >>> zopethreads_url = urljoin(base_url, zopethreads_path)
+  >>> def zopethreads(qs=zopethreads_qs):
+  ...     print urlopen(zopethreads_url + qs,
+  ...                   timeout=timeout).read()
+
+  >>> zopethreads()
+  total_threads:2.0
+  free_threads:0.0
+
+Oops! Actually, since no real requests happened, the worker threads haven't
+been started yet. The total number of threads is 2 because we have:
+
+  * The main thread running this test,
+
+  * The ZServer (medusa) thread.
+
+But not actually any worker threads, free or otherwise.
+
+We have registered a view that can hold its ZServer worker thread until it is
+unblocked. It's unblocked at first:
+
+  >>> from munin.zope.tests import HolderView
+  >>> green_light = HolderView.green_light
+  >>> green_light.is_set()
+  True
+  >>> holder_view_url = urljoin(base_url, "@@holder_view")
+  >>> print urlopen(holder_view_url, timeout=timeout).read()
+  OK
+
+Let's see how it behaves when blocked:
+
+  >>> green_light.clear()
+  >>> urlopen(holder_view_url, timeout=timeout)
+  Traceback (most recent call last):
+  ...
+  timeout: timed out
+
+Now let's unblock it
+
+  >>> green_light.set()
+
+The holder view is also serialized with a lock, so if a request goes
+through, any previous request waiting on `holder_condition` has already
+finished:
+
+  >>> print urlopen(holder_view_url, timeout=5).read()
+  OK
+  >>> print urlopen(holder_view_url, timeout=timeout).read()
+  OK
+
+So let's hold one thread and check the `zopethreads` status:
+
+  >>> green_light.clear()
+  >>> urlopen(holder_view_url, timeout=timeout)
+  Traceback (most recent call last):
+  ...
+  timeout: timed out
+
+  >>> zopethreads()
+  total_threads:4.0
+  free_threads:1.0
+
+Even though the browser request timed-out, we can see that Zope doesn't stop
+handling it. And if we hold another couple of threads we get:
+
+  >>> urlopen(holder_view_url, timeout=timeout)
+  Traceback (most recent call last):
+  ...
+  timeout: timed out
+  >>> urlopen(holder_view_url, timeout=timeout)
+  Traceback (most recent call last):
+  ...
+  timeout: timed out
+  >>> zopethreads()
+  total_threads:4.0
+  free_threads:0.0
+
+The important thing to notice here is that, although all worker threads are
+stuck, we can still access `zopethreads`, making it a useful tool even when the
+Zope server is overloaded.
+
+Let's unlock the views and wait for the locked requests to go through:
+
+  >>> green_light.set()
+  >>> print urlopen(holder_view_url, timeout=5).read()
+  OK
+  >>> print urlopen(holder_view_url, timeout=timeout).read()
+  OK
+
+Now `zopethreads` reports all threads free again.
+
+  >>> zopethreads()
+  total_threads:4.0
+  free_threads:2.0
+
+Differently than other `munin.zope` views, the `zopethread` view only responds
+to the secret, not to standard Zope authentication.
+
+  >>> manager_auth = base64.encodestring('manager:s3kr3t')
+  >>> auth_headers = dict(Authorization='Basic ' + manager_auth)
+  >>> zopethreads_request = Request(zopethreads_url, headers=auth_headers)
+  >>> import Products.ZServerViews.handler
+  >>> Products.ZServerViews.handler.DOCDEBUG = True
+  >>> print urlopen(zopethreads_request, timeout=timeout).read()
+  Traceback (most recent call last):
+  ...
+  HTTPError: HTTP Error 404: Not Found
+
+Even though the same authentication can be used to successfully see the
+`munin.zope` memory monitor:
+
+  >>> munin_path = '/@@munin.zope.plugins/zopememory'
+  >>> munin_url = urljoin(base_url, munin_path)
+  >>> munin_request = Request(munin_url, headers=auth_headers)
+  >>> print urlopen(munin_request, timeout=timeout).read()
+  Vm...
+
+Finally, lets test alternative query string formats and wrong secrets
+
+  >>> zopethreads('?muninsecret')
+  total_threads:4.0
+  free_threads:2.0
+
+  >>> zopethreads('?secret=muninsecret')
+  total_threads:4.0
+  free_threads:2.0
+
+  >>> zopethreads('?secret=notsecret')
+  Traceback (most recent call last):
+  ...
+  HTTPError: HTTP Error 404: Not Found
+
+  >>> zopethreads('?notsecret')
+  Traceback (most recent call last):
+  ...
+  HTTPError: HTTP Error 404: Not Found
+

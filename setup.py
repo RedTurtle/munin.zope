@@ -2,11 +2,11 @@ from setuptools import setup, find_packages
 from os.path import join
 import sys
 
-version = '1.3.4.dev0'
+version = '2.0.dev0'
 readme = open("README.rst").read()
 history = open(join('docs', 'HISTORY.txt')).read()
 
-install_requires = ['setuptools', 'gocept.munin']
+install_requires = ['setuptools', 'gocept.munin', 'Products.ZServerViews>=0.2']
 if sys.version_info < (2, 5):
     install_requires.append('threadframe')
 
