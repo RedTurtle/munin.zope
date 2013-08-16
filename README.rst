@@ -155,6 +155,35 @@ How to use it
   your site url.  Please check `munin`_ for more information about plugin
   configuration.
 
+Multiple zodb storage
+---------------------
+
+If you have multiple zodb storage, you can manage it adding ``filestorage`` parameter
+to the scripts using ``initFilestorages`` helper function, like so::
+
+    [munin]
+    recipe = zc.recipe.egg
+    eggs = munin.zope
+    initialization =
+        from munin.zope.plugins import initFilestorages
+        initFilestorages(['catalog', 'other'])
+
+Or whith c.r.filestorage::
+
+    [filestorage]
+    recipe = collective.recipe.filestorage
+    parts =
+        catalog
+        other
+
+    [munin]
+    recipe = zc.recipe.egg
+    eggs = munin.zope
+    initialization =
+        from munin.zope.plugins import initFilestorages
+        initFilestorages("""${filestorage:parts}""".split())
+    arguments = http_address='${instance:http-address}', user='${instance:user}'
+
 Security
 --------
 For security reasons the views requires the `View management screens` permission...

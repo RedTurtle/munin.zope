@@ -1,4 +1,5 @@
 from gocept.munin.client import SimpleMultiGraph, main
+from urllib import urlencode
 from munin.zope.memory import vmkeys
 from os.path import isdir, basename, abspath, normpath, join, exists
 from os import environ, getcwd, symlink
@@ -40,6 +41,27 @@ class zopememory(SimpleMultiGraph):
     category = 'Zope'
 
 
+def initFilestorages(filestorages):
+    def zodbactivity_factory(filestorage):
+        class newclass(zodbactivity):
+            def __init__(self, url, authorization, index):
+                self.url = (
+                    url % "zodbactivity" +
+                    ('?' in url and '&' or '?') +
+                    urlencode({'filestorage': filestorage}) +
+                    '&name=%s'  # dummy argument for gocept.munin.client.GraphBase._prepare_fetch
+                )
+                self.authorization = authorization
+                self.index = index
+        # newclass.__name__ = "zodbactivity-%s" % filestorage.replace('_', '-')
+        # newclass.__module__ = "munin.zope.plugins"
+        return newclass
+    for filestorage in filestorages:
+        classname = 'zodbactivity-%s' % filestorage.replace('_', '-')
+        globals()[classname] = zodbactivity_factory(filestorage)
+        globals()[classname].__name__ = classname
+
+
 def install(script, cmd, path, prefix=None, suffix=None):
     """ set up plugin symlinks using the given prexix/suffix or the
         current hostname and directory """
@@ -61,7 +83,7 @@ def install(script, cmd, path, prefix=None, suffix=None):
 
 
 def run(ip_address='localhost', http_address=8080, port_base=0, user=None,
-        secret = None):
+        secret=None):
     if 3 <= len(argv) <= 5 and argv[1] == 'install':
         return install(*argv)
     port = int(http_address) + int(port_base)
