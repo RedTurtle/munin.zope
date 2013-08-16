@@ -4,7 +4,8 @@ Changelog
 2.1 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Added helper function initFilestorages for manage multiple zodb storages
+  (zodbactivity, zopecache plugins) [mauro]
 
 
 2.0 (2013-02-05)

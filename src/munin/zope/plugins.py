@@ -42,11 +42,11 @@ class zopememory(SimpleMultiGraph):
 
 
 def initFilestorages(filestorages):
-    def zodbactivity_factory(filestorage):
-        class newclass(zodbactivity):
+    def factory(base, filestorage):
+        class newclass(base):
             def __init__(self, url, authorization, index):
                 self.url = (
-                    url % "zodbactivity" +
+                    url % base.__name__ +
                     ('?' in url and '&' or '?') +
                     urlencode({'filestorage': filestorage}) +
                     '&name=%s'  # dummy argument for gocept.munin.client.GraphBase._prepare_fetch
@@ -57,9 +57,10 @@ def initFilestorages(filestorages):
         # newclass.__module__ = "munin.zope.plugins"
         return newclass
     for filestorage in filestorages:
-        classname = 'zodbactivity-%s' % filestorage.replace('_', '-')
-        globals()[classname] = zodbactivity_factory(filestorage)
-        globals()[classname].__name__ = classname
+        for plugin in [zodbactivity, zopecache]:
+            classname = '%s-%s' % (plugin.__name__, filestorage.replace('_', '-'))
+            globals()[classname] = factory(plugin, filestorage)
+            globals()[classname].__name__ = classname
 
 
 def install(script, cmd, path, prefix=None, suffix=None):
