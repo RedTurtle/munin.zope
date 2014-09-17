@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.1 (unreleased)
+2.1 (2014-09-17)
 ----------------
 
 - Added helper function initFilestorages for manage multiple zodb storages
